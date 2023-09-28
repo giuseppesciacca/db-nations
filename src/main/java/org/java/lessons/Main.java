@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Scanner;
 
 public class Main {
 
@@ -12,9 +13,14 @@ public class Main {
 		final String user = "root";
 		final String password = "root";
 
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Inserisci lo stato che vuoi filtrare: ");
+		String filt = sc.nextLine();
+		sc.close();
+
 		try (Connection con = DriverManager.getConnection(url, user, password)) {
-			System.out.println("Connessione stabilita correttamente");
-			getCountry(con);
+			System.out.println("\nConnessione stabilita correttamente\n");
+			getCountry(con, filt);
 		} catch (Exception e) {
 
 			System.out.println("Errore di connessione: " + e.getMessage());
@@ -25,15 +31,18 @@ public class Main {
 
 	}
 
-	private static final void getCountry(Connection con) {
+	private static final void getCountry(Connection con, String filter) {
 
-		final String sql = "SELECT c.name country_name, r.name AS region_name, r.region_id, c2.name AS continent_name\r\n"
-				+ "FROM countries c \r\n" + "LEFT JOIN regions r ON r.region_id  = c.region_id \r\n"
-				+ "LEFT JOIN continents c2 ON c2.continent_id = r.continent_id ";
+		final String sql = "SELECT c.name AS country_name, r.name AS region_name, r.region_id, c2.name AS continent_name\r\n"
+				+ "FROM countries c \r\n"
+				+ "LEFT JOIN regions r ON r.region_id  = c.region_id \r\n"
+				+ "LEFT JOIN continents c2 ON c2.continent_id = r.continent_id \r\n"
+				+ "WHERE c.name LIKE ?";
 
 		try {
 
 			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, "%" + filter + "%");
 
 			ResultSet rs = ps.executeQuery();
 
