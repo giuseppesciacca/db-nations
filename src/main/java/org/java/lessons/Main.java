@@ -18,7 +18,6 @@ public class Main {
 		String filt = sc.nextLine();
 
 		try (Connection con = DriverManager.getConnection(url, user, password)) {
-			System.out.println("\nConnessione stabilita correttamente\n");
 			getCountryWithFilter(con, filt);
 
 			System.out.print("Choose a country id: ");
@@ -31,12 +30,8 @@ public class Main {
 
 			sc.close();
 		} catch (Exception e) {
-
 			System.out.println("Errore di connessione: " + e.getMessage());
 		}
-
-		System.out.println("\n----------------------------------\n");
-		System.out.println("The end");
 	}
 
 	private static final void getCountryWithFilter(Connection con, String filter) {
@@ -83,12 +78,21 @@ public class Main {
 
 			String country = "";
 			String languages = "";
+			boolean isFirstLanguage = true;
 
 			while (rs.next()) {
 
 				String language = rs.getString("language");
-				languages += language + ", ";
-				
+
+			    if (isFirstLanguage) {
+			    	//check if is the first language, if true don't add the comma;
+			        languages += language;
+			        isFirstLanguage = false;
+			    } else {
+			    	//if false, add the comma before the language;
+			        languages += ", " + language;
+			    }
+
 				String countryName = rs.getString("country_name");
 				country = countryName;
 			}
